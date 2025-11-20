@@ -1,0 +1,116 @@
+# Exemplos de Requisições HTTP
+
+## 1. Health Check
+GET http://localhost:3000/health
+
+###
+
+## 2. Registrar Admin (primeiro usuário)
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "nome": "Admin",
+  "cpf": "12345678900",
+  "telefone": "11999999999",
+  "email": "admin@example.com",
+  "password": "senha123",
+  "role": "admin"
+}
+
+###
+
+## 3. Login Admin (copie o token)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "senha123"
+}
+
+###
+
+## 4. Criar Rifa (cole o token do admin)
+POST http://localhost:3000/api/rifas
+Authorization: Bearer COLE_SEU_TOKEN_AQUI
+Content-Type: application/json
+
+{
+  "titulo": "Rifa Casa Residencial Pôr do Sol",
+  "descricao": "Concorra a uma casa linda no Residencial Pôr do Sol",
+  "preco": "50.00",
+  "totalCotas": 1000,
+  "dataSorteio": "2025-12-31T20:00:00Z"
+}
+
+###
+
+## 5. Listar Rifas (pega o ID da rifa)
+GET http://localhost:3000/api/rifas
+
+###
+
+## 6. Registrar Cliente
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "cpf": "98765432100",
+  "telefone": "11988888888",
+  "email": "joao@example.com",
+  "password": "senha123",
+  "role": "cliente"
+}
+
+###
+
+## 7. Login Cliente (copie o token)
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "joao@example.com",
+  "password": "senha123"
+}
+
+###
+
+## 8. Ver cotas da rifa (substitua :id pelo ID da rifa)
+GET http://localhost:3000/api/rifas/1/cotas
+
+###
+
+## 9. Reservar Cota (cole o token do cliente, substitua 1 pelo ID da rifa)
+POST http://localhost:3000/api/rifas/1/reservar
+Authorization: Bearer COLE_SEU_TOKEN_DO_CLIENTE_AQUI
+Content-Type: application/json
+
+{
+  "numeroCota": 1
+}
+
+###
+
+## 10. Comprar Cotas (cole o token do cliente, substitua 1 pelo ID da rifa)
+POST http://localhost:3000/api/rifas/1/comprar
+Authorization: Bearer COLE_SEU_TOKEN_DO_CLIENTE_AQUI
+Content-Type: application/json
+
+{
+  "numerosCota": [1, 2, 3],
+  "metodoPagamento": "pix"
+}
+
+###
+
+## Listar Usuários (requer token de admin)
+GET http://localhost:3000/api/users
+Authorization: Bearer SEU_TOKEN_ADMIN
+
+###
+
+## Buscar Usuário por ID (requer token)
+GET http://localhost:3000/api/users/UUID_DO_USUARIO
+Authorization: Bearer SEU_TOKEN_ADMIN

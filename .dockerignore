@@ -1,0 +1,10 @@
+# Ignora node_modules no Docker
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+dist
+README.md
+.DS_Store
+drizzle

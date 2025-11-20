@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: residencial-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: residencial
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - residencial-network
+
+  adminer:
+    image: adminer:latest
+    container_name: residencial-adminer
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    networks:
+      - residencial-network
+    depends_on:
+      - postgres
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: residencial-app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/residencial
+      JWT_SECRET: seu-secret-super-secreto-aqui-mude-isso
+      JWT_EXPIRES_IN: 7d
+    networks:
+      - residencial-network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+
+networks:
+  residencial-network:
+    driver: bridge
