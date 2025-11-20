@@ -6,6 +6,7 @@ import { logger } from './utils/logger';
 import authRoutes from './modules/auth/auth.routes';
 import userRoutes from './modules/users/user.routes';
 import rifaRoutes from './modules/rifas/rifa.routes';
+import pagamentoRoutes from './modules/pagamentos/pagamento.routes';
 
 export const app = express();
 
@@ -27,6 +28,7 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rifas', rifaRoutes);
+app.use('/api/pagamentos', pagamentoRoutes);
 
 // Error handler (deve ser o último middleware)
 app.use(errorHandler);

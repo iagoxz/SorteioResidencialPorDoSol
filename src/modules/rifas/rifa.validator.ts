@@ -3,9 +3,9 @@ import { z } from 'zod';
 export const createRifaSchema = z.object({
   titulo: z.string().min(3, 'Título deve ter no mínimo 3 caracteres'),
   descricao: z.string().optional(),
-  precoCota: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Preço inválido'),
-  totalCotas: z.number().int().positive('Total de cotas deve ser positivo'),
-  dataFim: z.string().datetime('Data inválida'),
+  preco: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Preço inválido'),
+  totalCotas: z.coerce.number().int().positive('Total de cotas deve ser positivo'),
+  dataSorteio: z.string().datetime('Data inválida'),
   sorteioTipo: z.enum(['federal', 'manual', 'algoritmo']).default('manual'),
 });
 

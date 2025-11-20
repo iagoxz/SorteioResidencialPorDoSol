@@ -11,9 +11,9 @@ export class RifaService {
       .values({
         titulo: input.titulo,
         descricao: input.descricao,
-        precoCota: input.precoCota,
+        precoCota: input.preco,
         totalCotas: input.totalCotas,
-        dataFim: new Date(input.dataFim),
+        dataFim: new Date(input.dataSorteio),
         sorteioTipo: input.sorteioTipo,
       })
       .returning();

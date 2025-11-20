@@ -1,0 +1,358 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-11-20T17:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.8",
+  "resources": [
+    {
+      "_id": "req_health",
+      "parentId": "fld_general",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/health",
+      "name": "Health Check",
+      "description": "",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_register_admin",
+      "parentId": "fld_auth",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/auth/register",
+      "name": "Registrar Admin",
+      "description": "Registra um usuário admin",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Admin Sistema\",\n  \"cpf\": \"12345678900\",\n  \"telefone\": \"11999999999\",\n  \"email\": \"admin@residencial.com\",\n  \"password\": \"admin123\",\n  \"role\": \"admin\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_admin",
+      "parentId": "fld_auth",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "Login Admin",
+      "description": "Faz login e retorna o token JWT. COPIE O TOKEN!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@residencial.com\",\n  \"password\": \"admin123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_register_cliente",
+      "parentId": "fld_auth",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/auth/register",
+      "name": "Registrar Cliente",
+      "description": "Registra um cliente comum",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"João Silva\",\n  \"cpf\": \"98765432100\",\n  \"telefone\": \"11988888888\",\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha123\",\n  \"role\": \"cliente\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_login_cliente",
+      "parentId": "fld_auth",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/auth/login",
+      "name": "Login Cliente",
+      "description": "Login do cliente. COPIE O TOKEN!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"joao@email.com\",\n  \"password\": \"senha123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_criar_rifa",
+      "parentId": "fld_rifas",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/rifas",
+      "name": "Criar Rifa",
+      "description": "Apenas admin. Cole o token do admin.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"titulo\": \"Rifa Casa Residencial Pôr do Sol\",\n  \"descricao\": \"Concorra a uma linda casa de 3 quartos no Residencial Pôr do Sol\",\n  \"preco\": \"50.00\",\n  \"totalCotas\": 100,\n  \"dataSorteio\": \"2025-12-31T20:00:00Z\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_admin }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_listar_rifas",
+      "parentId": "fld_rifas",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/rifas",
+      "name": "Listar Rifas",
+      "description": "Lista todas as rifas. Público.",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_ver_rifa",
+      "parentId": "fld_rifas",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/rifas/1",
+      "name": "Ver Rifa por ID",
+      "description": "Detalhes de uma rifa específica",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_ver_cotas",
+      "parentId": "fld_rifas",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/rifas/1/cotas",
+      "name": "Ver Cotas da Rifa",
+      "description": "Lista todas as cotas de uma rifa",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_checkout_pix",
+      "parentId": "fld_pagamentos",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/pagamentos/checkout",
+      "name": "Criar Checkout PIX",
+      "description": "Cria pagamento PIX e retorna QR Code. Use token do CLIENTE!",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"rifaId\": 1,\n  \"numerosCota\": [1, 2, 3],\n  \"metodoPagamento\": \"pix\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_buscar_pagamento",
+      "parentId": "fld_pagamentos",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/pagamentos/1",
+      "name": "Buscar Pagamento",
+      "description": "Consulta status do pagamento. Use token do CLIENTE!",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ _.token_cliente }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "req_webhook",
+      "parentId": "fld_pagamentos",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "url": "{{ _.base_url }}/api/pagamentos/webhook",
+      "name": "Webhook Mercado Pago",
+      "description": "Simula notificação do MP. Substitua o ID pelo mpPaymentId real.",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"action\": \"payment.updated\",\n  \"api_version\": \"v1\",\n  \"data\": {\n    \"id\": \"123456789\"\n  },\n  \"date_created\": \"2025-11-20T14:00:00Z\",\n  \"id\": 12345,\n  \"live_mode\": false,\n  \"type\": \"payment\",\n  \"user_id\": \"123456\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -1700000000000,
+      "isPrivate": false,
+      "_type": "request"
+    },
+    {
+      "_id": "fld_general",
+      "parentId": "wrk_main",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "name": "🏥 Geral",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1700000000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_auth",
+      "parentId": "wrk_main",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "name": "🔐 Autenticação",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1700000000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_rifas",
+      "parentId": "wrk_main",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "name": "🎟️ Rifas",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1700000000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_pagamentos",
+      "parentId": "wrk_main",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "name": "💳 Pagamentos PIX",
+      "description": "",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1700000000000,
+      "_type": "request_group"
+    },
+    {
+      "_id": "wrk_main",
+      "parentId": null,
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "name": "Residencial Pôr do Sol - API",
+      "description": "Sistema de Rifas com Pagamento PIX",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "env_base",
+      "parentId": "wrk_main",
+      "modified": 1700000000000,
+      "created": 1700000000000,
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "token_admin": "",
+        "token_cliente": ""
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "token_admin", "token_cliente"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1700000000000,
+      "_type": "environment"
+    }
+  ]
+}

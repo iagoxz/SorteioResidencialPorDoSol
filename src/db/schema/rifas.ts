@@ -31,9 +31,18 @@ export const pagamentos = pgTable('pagamentos', {
   rifaId: integer('rifa_id').notNull().references(() => rifas.id),
   valor: numeric('valor', { precision: 10, scale: 2 }).notNull(),
   metodo: varchar('metodo', { length: 50 }).notNull(), // pix, cartao
-  status: varchar('status', { length: 50 }).notNull().default('pendente'), // pendente, pago, cancelado
+  status: varchar('status', { length: 50 }).notNull().default('pendente'), // pendente, pago, cancelado, expirado
+  
+  // Mercado Pago
+  mpPaymentId: varchar('mp_payment_id', { length: 255 }), // ID do pagamento no MP
+  qrCode: text('qr_code'), // QR Code em base64
+  qrCodeUrl: varchar('qr_code_url', { length: 500 }), // URL da imagem do QR
+  pixPayload: text('pix_payload'), // Código "copiar e colar"
+  
   transacaoId: varchar('transacao_id', { length: 255 }),
+  expiraEm: timestamp('expira_em'), // Expiração do pagamento PIX
   createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 
 export const cupons = pgTable('cupons', {

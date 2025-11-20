@@ -114,3 +114,62 @@ Authorization: Bearer SEU_TOKEN_ADMIN
 ## Buscar Usuário por ID (requer token)
 GET http://localhost:3000/api/users/UUID_DO_USUARIO
 Authorization: Bearer SEU_TOKEN_ADMIN
+
+###
+
+## ═══════════════════════════════════════════════════════════════
+## 💳 PAGAMENTOS COM PIX - MERCADO PAGO
+## ═══════════════════════════════════════════════════════════════
+
+## 11. Criar Checkout PIX (gera QR Code)
+POST http://localhost:3000/api/pagamentos/checkout
+Authorization: Bearer COLE_SEU_TOKEN_DO_CLIENTE_AQUI
+Content-Type: application/json
+
+{
+  "rifaId": 1,
+  "numerosCota": [1, 2, 3],
+  "metodoPagamento": "pix"
+}
+
+### Resposta esperada:
+# {
+#   "message": "Checkout criado com sucesso",
+#   "data": {
+#     "pagamentoId": 1,
+#     "mpPaymentId": "123456789",
+#     "status": "pending",
+#     "qrCode": "00020126580014br.gov.bcb.pix...",
+#     "pixPayload": "00020126580014br.gov.bcb.pix...",
+#     "valor": 150.00,
+#     "expiraEm": "2025-11-20T15:30:00.000Z",
+#     "cotas": [1, 2, 3]
+#   }
+# }
+
+###
+
+## 12. Buscar Status do Pagamento
+GET http://localhost:3000/api/pagamentos/1
+Authorization: Bearer COLE_SEU_TOKEN_DO_CLIENTE_AQUI
+
+###
+
+## 13. Webhook do Mercado Pago (chamado automaticamente pelo MP)
+# Esta rota é pública e será chamada pelo Mercado Pago
+# Não precisa testar manualmente
+POST http://localhost:3000/api/pagamentos/webhook
+Content-Type: application/json
+
+{
+  "action": "payment.updated",
+  "api_version": "v1",
+  "data": {
+    "id": "123456789"
+  },
+  "date_created": "2025-11-20T14:00:00Z",
+  "id": 12345,
+  "live_mode": false,
+  "type": "payment",
+  "user_id": "123456"
+}

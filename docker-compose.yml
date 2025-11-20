@@ -16,6 +16,17 @@ services:
     networks:
       - residencial-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: residencial-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - residencial-network
+
   adminer:
     image: adminer:latest
     container_name: residencial-adminer
@@ -43,13 +54,22 @@ services:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/residencial
       JWT_SECRET: seu-secret-super-secreto-aqui-mude-isso
       JWT_EXPIRES_IN: 7d
+      REDIS_URL: redis://redis:6379
+      MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN}
+      MP_PUBLIC_KEY: ${MP_PUBLIC_KEY}
+      MP_WEBHOOK_SECRET: ${MP_WEBHOOK_SECRET}
+      MP_SANDBOX: ${MP_SANDBOX:-true}
+      MP_SIMULATE: ${MP_SIMULATE:-false}
+      APP_URL: ${APP_URL:-http://localhost:3000}
     networks:
       - residencial-network
     depends_on:
       - postgres
+      - redis
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   residencial-network:
