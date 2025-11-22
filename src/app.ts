@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { errorHandler } from './middlewares/error-handler';
 import { logger } from './utils/logger';
 
@@ -11,6 +12,7 @@ import pagamentoRoutes from './modules/pagamentos/pagamento.routes';
 export const app = express();
 
 // Middlewares
+app.use(cors());
 app.use(express.json());
 
 // Log de requisições
