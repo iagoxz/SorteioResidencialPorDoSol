@@ -2,8 +2,10 @@ import { z } from 'zod';
 
 export const checkoutSchema = z.object({
   rifaId: z.number(),
-  numerosCota: z.array(z.number()).min(1, 'Selecione pelo menos uma cota'),
+  quantidadeCotas: z.number().min(1, 'Quantidade deve ser pelo menos 1').default(1),
   metodoPagamento: z.enum(['pix', 'cartao']),
+  clienteTelefone: z.string().min(10, 'Telefone deve ter pelo menos 10 dígitos').max(20),
+  clienteCpf: z.string().length(11, 'CPF deve ter 11 dígitos'),
 });
 
 export const webhookSchema = z.object({

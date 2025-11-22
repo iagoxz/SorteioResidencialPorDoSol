@@ -5,8 +5,8 @@ import { authMiddleware } from '../../middlewares/auth';
 const router = Router();
 const pagamentoController = new PagamentoController();
 
-// Criar checkout PIX (requer autenticação)
-router.post('/checkout', authMiddleware, (req, res) =>
+// Criar checkout PIX (público - não requer autenticação)
+router.post('/checkout', (req, res) =>
   pagamentoController.checkout(req, res)
 );
 

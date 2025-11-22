@@ -9,16 +9,12 @@ const pagamentoService = new PagamentoService();
 export class PagamentoController {
   /**
    * POST /api/pagamentos/checkout
-   * Cria checkout PIX
+   * Cria checkout PIX (não requer autenticação)
    */
   async checkout(req: Request, res: Response) {
     try {
       const input = checkoutSchema.parse(req.body);
-      const userId = req.user?.userId;
-
-      if (!userId) {
-        return res.status(401).json({ error: 'Usuário não autenticado' });
-      }
+      const userId = req.user?.userId; // Opcional - pode ser undefined para clientes
 
       const resultado = await pagamentoService.criarCheckout(input, userId);
 

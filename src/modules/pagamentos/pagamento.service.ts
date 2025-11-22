@@ -11,9 +11,17 @@ export class PagamentoService {
   private readonly PAGAMENTO_EXPIRA_MINUTOS = 30;
 
   /**
+   * Sorteia cotas aleatoriamente
+   */
+  private sortearCotas(cotasDisponiveis: any[], quantidade: number) {
+    const shuffled = [...cotasDisponiveis].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, quantidade);
+  }
+
+  /**
    * Cria checkout PIX via Mercado Pago
    */
-  async criarCheckout(input: CheckoutInput, userId: string) {
+  async criarCheckout(input: CheckoutInput, userId?: string) {
     // 1. Buscar rifa
     const rifa = await db.query.rifas.findFirst({
       where: eq(rifas.id, input.rifaId),
@@ -27,21 +35,26 @@ export class PagamentoService {
       throw new Error('Rifa não está ativa');
     }
 
-    // 2. Verificar disponibilidade das cotas
-    const cotasDisponiveis = await db.query.cotas.findMany({
+    // 2. Buscar cotas disponíveis e sortear aleatoriamente
+    const todasCotasDisponiveis = await db.query.cotas.findMany({
       where: and(
         eq(cotas.rifaId, input.rifaId),
-        inArray(cotas.numero, input.numerosCota),
         eq(cotas.status, 'disponivel')
       ),
     });
 
-    if (cotasDisponiveis.length !== input.numerosCota.length) {
-      throw new Error('Algumas cotas não estão disponíveis');
+    if (todasCotasDisponiveis.length < input.quantidadeCotas) {
+      throw new Error(`Apenas ${todasCotasDisponiveis.length} cota(s) disponível(is)`);
     }
 
+    // Sortear cotas aleatoriamente
+    const cotasSorteadas = this.sortearCotas(todasCotasDisponiveis, input.quantidadeCotas);
+    const numerosCotasSorteadas = cotasSorteadas.map(c => c.numero);
+
     // 3. Reservar cotas no Redis (evitar double-booking)
-    const reservaKey = `reserva:${userId}:${input.rifaId}`;
+    // Usar telefone ou userId como identificador
+    const identificador = userId || input.clienteTelefone;
+    const reservaKey = `reserva:${identificador}:${input.rifaId}`;
     const reservaExistente = await redisClient.get(reservaKey);
 
     if (reservaExistente) {
@@ -51,7 +64,7 @@ export class PagamentoService {
     await redisClient.setEx(
       reservaKey,
       this.RESERVA_EXPIRA_MINUTOS * 60,
-      JSON.stringify(input.numerosCota)
+      JSON.stringify(numerosCotasSorteadas)
     );
 
     // 4. Atualizar cotas no banco para "reservada"
@@ -62,18 +75,20 @@ export class PagamentoService {
       .update(cotas)
       .set({
         status: 'reservada',
-        usuarioId: userId,
+        usuarioId: userId || null,
+        clienteTelefone: input.clienteTelefone,
+        clienteCpf: input.clienteCpf,
         reservaExpiraEm: expiraEm,
       })
       .where(
         and(
           eq(cotas.rifaId, input.rifaId),
-          inArray(cotas.numero, input.numerosCota)
+          inArray(cotas.numero, numerosCotasSorteadas)
         )
       );
 
     // 5. Calcular valor total
-    const valorTotal = Number(rifa.precoCota) * input.numerosCota.length;
+    const valorTotal = Number(rifa.precoCota) * input.quantidadeCotas;
 
     // 6. Criar pagamento no Mercado Pago (ou simular)
     const expiraEmPagamento = new Date();
@@ -100,7 +115,7 @@ export class PagamentoService {
       // Modo real - chama Mercado Pago
       const paymentBody = {
         transaction_amount: valorTotal,
-        description: `${rifa.titulo} - ${input.numerosCota.length} cota(s): ${input.numerosCota.join(', ')}`,
+        description: `${rifa.titulo} - ${input.quantidadeCotas} cota(s): ${numerosCotasSorteadas.join(', ')}`,
         payment_method_id: 'pix',
         payer: {
           email: 'cliente@email.com',
@@ -108,9 +123,11 @@ export class PagamentoService {
         notification_url: `${process.env.APP_URL || 'http://localhost:3000'}/api/pagamentos/webhook`,
         date_of_expiration: expiraEmPagamento.toISOString(),
         metadata: {
-          user_id: userId,
+          user_id: userId || '',
+          cliente_telefone: input.clienteTelefone,
+          cliente_cpf: input.clienteCpf,
           rifa_id: input.rifaId.toString(),
-          numeros_cota: input.numerosCota.join(','),
+          numeros_cota: numerosCotasSorteadas.join(','),
         },
       };
 
@@ -127,7 +144,9 @@ export class PagamentoService {
     const [pagamentoDb] = await db
       .insert(pagamentos)
       .values({
-        usuarioId: userId,
+        usuarioId: userId || null,
+        clienteTelefone: input.clienteTelefone,
+        clienteCpf: input.clienteCpf,
         rifaId: input.rifaId,
         valor: valorTotal.toString(),
         metodo: input.metodoPagamento,
@@ -148,7 +167,7 @@ export class PagamentoService {
       pixPayload: payment.point_of_interaction?.transaction_data?.qr_code,
       valor: valorTotal,
       expiraEm: expiraEmPagamento,
-      cotas: input.numerosCota,
+      cotas: numerosCotasSorteadas,
     };
   }
 
@@ -206,13 +225,18 @@ export class PagamentoService {
   private async confirmarPagamento(pagamento: typeof pagamentos.$inferSelect) {
     logger.info({ pagamentoId: pagamento.id }, 'Confirmando pagamento');
 
-    // 1. Buscar cotas reservadas pelo usuário para esta rifa
+    // 1. Buscar cotas reservadas pelo usuário/cliente para esta rifa
+    const condicoes = [eq(cotas.rifaId, pagamento.rifaId), eq(cotas.status, 'reservada')];
+    
+    if (pagamento.usuarioId) {
+      condicoes.push(eq(cotas.usuarioId, pagamento.usuarioId));
+    } else {
+      condicoes.push(eq(cotas.clienteTelefone, pagamento.clienteTelefone!));
+      condicoes.push(eq(cotas.clienteCpf, pagamento.clienteCpf!));
+    }
+
     const cotasReservadas = await db.query.cotas.findMany({
-      where: and(
-        eq(cotas.rifaId, pagamento.rifaId),
-        eq(cotas.usuarioId, pagamento.usuarioId),
-        eq(cotas.status, 'reservada')
-      ),
+      where: and(...condicoes),
     });
 
     if (cotasReservadas.length === 0) {
@@ -228,15 +252,12 @@ export class PagamentoService {
         reservaExpiraEm: null,
       })
       .where(
-        and(
-          eq(cotas.rifaId, pagamento.rifaId),
-          eq(cotas.usuarioId, pagamento.usuarioId),
-          eq(cotas.status, 'reservada')
-        )
+        and(...condicoes)
       );
 
     // 3. Limpar reserva no Redis
-    const reservaKey = `reserva:${pagamento.usuarioId}:${pagamento.rifaId}`;
+    const identificador = pagamento.usuarioId || pagamento.clienteTelefone;
+    const reservaKey = `reserva:${identificador}:${pagamento.rifaId}`;
     await redisClient.del(reservaKey);
 
     logger.info(
@@ -251,23 +272,31 @@ export class PagamentoService {
   private async liberarCotas(pagamento: typeof pagamentos.$inferSelect) {
     logger.info({ pagamentoId: pagamento.id }, 'Liberando cotas');
 
+    const condicoes = [eq(cotas.rifaId, pagamento.rifaId), eq(cotas.status, 'reservada')];
+    
+    if (pagamento.usuarioId) {
+      condicoes.push(eq(cotas.usuarioId, pagamento.usuarioId));
+    } else {
+      condicoes.push(eq(cotas.clienteTelefone, pagamento.clienteTelefone!));
+      condicoes.push(eq(cotas.clienteCpf, pagamento.clienteCpf!));
+    }
+
     await db
       .update(cotas)
       .set({
         status: 'disponivel',
         usuarioId: null,
+        clienteTelefone: null,
+        clienteCpf: null,
         reservaExpiraEm: null,
       })
       .where(
-        and(
-          eq(cotas.rifaId, pagamento.rifaId),
-          eq(cotas.usuarioId, pagamento.usuarioId),
-          eq(cotas.status, 'reservada')
-        )
+        and(...condicoes)
       );
 
     // Limpar reserva no Redis
-    const reservaKey = `reserva:${pagamento.usuarioId}:${pagamento.rifaId}`;
+    const identificador = pagamento.usuarioId || pagamento.clienteTelefone;
+    const reservaKey = `reserva:${identificador}:${pagamento.rifaId}`;
     await redisClient.del(reservaKey);
   }
 

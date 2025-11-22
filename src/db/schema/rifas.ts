@@ -20,14 +20,18 @@ export const cotas = pgTable('cotas', {
   rifaId: integer('rifa_id').notNull().references(() => rifas.id),
   numero: integer('numero').notNull(),
   status: varchar('status', { length: 50 }).notNull().default('disponivel'), // disponivel, reservada, paga
-  usuarioId: uuid('usuario_id').references(() => usuarios.id),
+  usuarioId: uuid('usuario_id').references(() => usuarios.id), // Opcional - apenas se for usuário logado (admin)
+  clienteTelefone: varchar('cliente_telefone', { length: 20 }), // Para clientes sem login
+  clienteCpf: varchar('cliente_cpf', { length: 14 }), // Para clientes sem login
   reservaExpiraEm: timestamp('reserva_expira_em'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
 export const pagamentos = pgTable('pagamentos', {
   id: serial('id').primaryKey(),
-  usuarioId: uuid('usuario_id').notNull().references(() => usuarios.id),
+  usuarioId: uuid('usuario_id').references(() => usuarios.id), // Opcional - apenas se for usuário logado
+  clienteTelefone: varchar('cliente_telefone', { length: 20 }), // Para clientes sem login
+  clienteCpf: varchar('cliente_cpf', { length: 14 }), // Para clientes sem login
   rifaId: integer('rifa_id').notNull().references(() => rifas.id),
   valor: numeric('valor', { precision: 10, scale: 2 }).notNull(),
   metodo: varchar('metodo', { length: 50 }).notNull(), // pix, cartao
